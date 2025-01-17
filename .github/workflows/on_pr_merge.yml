@@ -1,0 +1,14 @@
+name: 🔵 Deploy to Staging
+on:
+    pull_request:
+      branches:
+      - main
+      types: [closed]
+
+jobs:
+    confirm-merge:
+        if: ${{ github.event.pull_request.merged }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: 'Confirm'
+              run: echo Just checking PR is merged and not closed
