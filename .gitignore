@@ -3,3 +3,6 @@ playwright-report/
 test-results/
 .vercel
 .DS_Store
+/playwright-report/
+/blob-report/
+/playwright/.cache/
