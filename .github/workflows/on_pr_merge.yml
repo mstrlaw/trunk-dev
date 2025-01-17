@@ -12,3 +12,25 @@ jobs:
         steps:
             - name: 'Confirm'
               run: echo Just checking PR is merged and not closed
+    deploy-to-staging:
+        runs-on: ubuntu-latest
+        environment: Development
+        needs: [confirm-merge]
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Install Vercel CLI
+          run: npm install --global vercel@33.2.0
+
+        - name: Pull Vercel Environment Information
+          run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+        - name: Build Project Artifacts
+          run: |
+            vercel build --token=${{ secrets.VERCEL_TOKEN }}
+            ls .vercel/output -la
+        - name: Deploy Project Artifacts to Vercel
+          run: |
+            deploymentUrl="$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})"
+            vercel alias --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }} set "$deploymentUrl" trunk-dev-staging.vercel.app
