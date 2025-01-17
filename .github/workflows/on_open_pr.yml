@@ -1,0 +1,13 @@
+# This workflow runs for any PR pointing to main
+name: 🧪 Perform Tests
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Build & deploy'
+        run: echo "I only run on PRs targeting main"
