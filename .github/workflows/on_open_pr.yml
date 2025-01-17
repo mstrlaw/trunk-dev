@@ -6,8 +6,52 @@ on:
     - main
 
 jobs:
-  build-and-upload:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Build & deploy'
-        run: echo "I only run on PRs targeting main"
+    e2e-tests:
+        runs-on: ubuntu-latest
+        environment: Staging
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v3
+              with:
+                node-version: 20
+            
+            - name: Install PM2
+              run: npm i pm2 -g
+            
+            - name: Run localhost server
+              id: start-serve
+              run: |
+                pm2 serve src --name "server"
+                sleep 5
+            
+            - name: Get installed Playwright version
+              id: playwright-version
+              run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
+            
+            - name: Cache playwright binaries
+              uses: actions/cache@v3
+              id: playwright-cache
+              with:
+                path: |
+                    ~/.cache/ms-playwright
+                key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+            
+            - run: npm ci
+            
+            - run: npx playwright install --with-deps
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+            - run: npx playwright install-deps
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+            
+            - name: Run Playwright tests
+              run: npx playwright test
+            
+            - uses: actions/upload-artifact@v2
+              if: always()
+              with:
+                name: playwright-test-results
+                path: test-results/
+            
+            - name: Stop localhost
+              id: stop-serve
+              run: pm2 stop server
