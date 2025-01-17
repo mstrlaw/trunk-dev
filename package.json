@@ -1,0 +1,12 @@
+{
+  "name": "trunk-dev",
+  "version": "1.0.0",
+  "description": "A simple demo project to demonstrate Trunk Based Development using GitHub workflows for CI/CD",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "mstrlaw",
+  "license": "ISC"
+}
